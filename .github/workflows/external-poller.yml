@@ -30,6 +30,7 @@ jobs:
         with:
           payload: |
             {
+              "text": "Warning \n Scheduled SFTP poller failed :rotating_light: \n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|:point_right: Github Actions failure>",
               "blocks": [
                 {
                   "type": "header",
@@ -39,7 +40,7 @@ jobs:
                   }
                 },
                 {
-                  "type": "header",
+                  "type": "section",
                   "text": {
                     "type": "mrkdwn",
                     "text": "Scheduled SFTP poller failed :rotating_light:"
@@ -56,3 +57,4 @@ jobs:
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
