@@ -28,7 +28,7 @@ export class SftpPoller extends RemotePoller {
       password: connectionDetails.config.password,
       readyTimeout: 20_000,
       timeout: 60_000,
-      debug: console.log,
+      // debug: console.log,
       algorithms: {
         kex: [
           //"diffie-hellman-group-exchange-sha256", // hangs
