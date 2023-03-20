@@ -15,25 +15,23 @@ jobs:
         with:
           node-version: "18.7"
       - run: npm ci
-      - run: npm run execute ftp-external-poller FMXCHEPT
+      - run: npm run execute ftp-external-poller FMXCHEPT # Set to FMXCHEPT for testing
         env:
           STEDI_API_KEY: ${{secrets.STEDI_API_KEY}}
           DESTINATION_WEBHOOK_URL: ${{secrets.DESTINATION_WEBHOOK_URL}}
           EXECUTIONS_BUCKET_NAME: ${{secrets.EXECUTIONS_BUCKET_NAME }}
           SFTP_BUCKET_NAME: ${{secrets.SFTP_BUCKET_NAME }}
       # notify via slack if any failures are encountered
-      # - if: #${{ failure() }}
       - if: success()
-        name: "Send GitHub Action trigger failure data to Slack"
+        name: "Send GitHub Action trigger failed notification to Slack"
         id: slack
         uses: slackapi/slack-github-action@v1.23.0
         with:
           payload: |
             {
-              "text": "Warning \n Scheduled SFTP poller failed :rotating_light: \n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|:point_right: Github Actions failure>",
               "blocks": [
                 {
-                  "type": "header",
+                  "type": "section",
                   "text": {
                     "type": "mrkdwn",
                     "text": "*Warning* :warning:"
@@ -43,7 +41,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "Scheduled SFTP poller failed :rotating_light:"
+                    "text": "SFTP poller failed :rotating_light:"
                   }
                 },
                 {
