@@ -22,7 +22,7 @@ jobs:
           EXECUTIONS_BUCKET_NAME: ${{secrets.EXECUTIONS_BUCKET_NAME }}
           SFTP_BUCKET_NAME: ${{secrets.SFTP_BUCKET_NAME }}
       # notify via slack if any failures are encountered
-      - if: success()
+      - if: failure()
         name: "Send GitHub Action trigger failed notification to Slack"
         id: slack
         uses: slackapi/slack-github-action@v1.23.0
@@ -41,7 +41,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "The SFTP poller failed its run. [<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Github Action>]"
+                    "text": "The SFTP poller failed its run. [<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Github Action Run ${{ github.run_id }}>]"
                   }
                 }
               ]
