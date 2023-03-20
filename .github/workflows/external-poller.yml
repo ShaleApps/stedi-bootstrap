@@ -41,7 +41,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "The SFTP poller failed its run. [<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Github Action]"
+                    "text": "  The SFTP poller failed its run. [<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Github Action]"
                   }
                 },
               ]
