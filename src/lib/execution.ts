@@ -103,7 +103,7 @@ const notifySlack = async (message: string[]): Promise<void> => {
     },
   });
   const data = await response.json();
-  console.log(data);
+  console.log("Tried to notify Slack:", data);
 };
 
 export const failedExecution = async (
