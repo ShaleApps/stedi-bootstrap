@@ -39,7 +39,7 @@ export class SftpPoller extends RemotePoller {
         serverHostKey: ["ssh-rsa"],
         cipher: ["aes256-cbc", "aes256-ctr", "aes128-cbc", "aes128-ctr"],
         hmac: [
-          "hmac-sha2-512",
+          //"hmac-sha2-512",
           "hmac-sha2-256",
           "hmac-sha1",
         ],
