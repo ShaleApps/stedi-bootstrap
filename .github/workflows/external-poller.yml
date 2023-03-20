@@ -41,16 +41,9 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "SFTP poller failed :rotating_light:"
+                    "text": "The SFTP poller failed its run. [<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Github Action]"
                   }
                 },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|:point_right: Github Actions failure>"
-                  }
-                }
               ]
             }
         env:
