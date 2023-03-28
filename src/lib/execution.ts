@@ -110,15 +110,21 @@ export const failedExecution = async (
   errorWithContext: ErrorWithContext
 ): Promise<FailureResponse> => {
   const rawError = serializeError(errorWithContext);
+  const payload = {
+    ...rawError,
+  };
+  const payloadString = JSON.stringify(payload);
+
+
   const failureRecord = await markExecutionAsFailed(executionId, rawError);
   const statusCode =
     (errorWithContext as any)?.["$metadata"]?.httpStatusCode || 500;
   const message = "execution failed";
   await notifySlack([
     `Stedi function ${functionName()} failed.`,
-    failureRecord.key ?? "",
+    failureRecord?.key ?? "",
     `Execution ID: ${executionId}`,
-    `Error: ${JSON.stringify(rawError)}`
+    `Error: ${JSON.stringify(payloadString)}`
   ]);
   return { statusCode, message, failureRecord, error: rawError };
 };
