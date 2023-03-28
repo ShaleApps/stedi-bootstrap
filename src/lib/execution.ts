@@ -14,7 +14,8 @@ import { bucketsClient } from "./clients/buckets.js";
 import fetch from "node-fetch";
 
 const bucketName = requiredEnvVar("EXECUTIONS_BUCKET_NAME");
-const slackEndPoint = requiredEnvVar("SLACK_ENDPOINT");
+const slackEndPointProd = requiredEnvVar("SLACK_ENDPOINT");
+const slackEndPointTest = requiredEnvVar("SLACK_ENDPOINT_TEST");
 const stediApiKey = requiredEnvVar("STEDI_API_KEY");
 
 let _executionsBucketClient: BucketsClient;
@@ -79,8 +80,8 @@ export const markExecutionAsSuccessful = async (executionId: string) => {
 export class PostToSlack {
   constructor(
     message: string,
-    type: "Success" | "Failure" | "Info" | "Warning" = "Failure",
-    customer = "FMXCHEP"
+    customer: string,
+    type: "Success" | "Failure" | "Info" | "Warning" = "Failure"
   ) {
     this.Type = type;
     this.Customer = customer;
@@ -91,9 +92,19 @@ export class PostToSlack {
   public Message: string;
 }
 
-const notifySlack = async (message: string[]): Promise<void> => {
+export const CHEP_PROD = "FMXCHEP";
+export const CHEP_TEST = "CHEP_TEST";
+
+const notifySlack = async (senderISAID: string | null, receiverISAID: string | null, message: string[]): Promise<void> => {
   try {
-    const body = new PostToSlack(message.filter((s) => s == "").join("\n "));
+    let customer = CHEP_PROD;
+    let slackEndPoint = slackEndPointProd
+    if (senderISAID === CHEP_TEST || receiverISAID === CHEP_TEST) {
+      customer = CHEP_TEST
+      slackEndPoint = slackEndPointTest
+    }
+
+    const body = new PostToSlack(message.filter((s) => s == "").join("\n "), customer);
     const response = await fetch(slackEndPoint, {
       method: "post",
       body: {
@@ -113,7 +124,9 @@ const notifySlack = async (message: string[]): Promise<void> => {
 
 export const failedExecution = async (
   executionId: string,
-  errorWithContext: ErrorWithContext
+  errorWithContext: ErrorWithContext,
+  sendingPartnerID: string | null = null,
+  receivingPartnerID: string | null = null
 ): Promise<FailureResponse> => {
   const rawError = serializeError(errorWithContext);
   const payload = {
@@ -125,7 +138,7 @@ export const failedExecution = async (
   const statusCode =
     (errorWithContext as any)?.["$metadata"]?.httpStatusCode || 500;
   const message = "execution failed";
-  await notifySlack([
+  await notifySlack(sendingPartnerID, receivingPartnerID, [
     `Stedi function ${functionName()} failed.`,
     failureRecord?.key ?? "",
     `Execution ID: ${executionId}`,

@@ -45,6 +45,8 @@ export const handler = async (
 ): Promise<RemotePollingResults | FailureResponse> => {
   const executionTime = new Date().toISOString();
   const executionId = generateExecutionId({ executionTime });
+  let sendingPartnerISAID: string | null = null;
+  let receivingPartnerISAID: string | null = configId;
 
   await recordNewExecution(executionId, { executionTime });
   await console.log("starting", {
@@ -69,7 +71,9 @@ export const handler = async (
     if (!pollerConfig) {
       return failedExecution(
         executionId,
-        new ErrorWithContext("config not found for key", { configId })
+        new ErrorWithContext("config not found for key", { configId }),
+        sendingPartnerISAID,
+        receivingPartnerISAID,
       );
     }
 
@@ -113,7 +117,7 @@ export const handler = async (
     return results;
   } catch (e) {
     const error = ErrorWithContext.fromUnknown(e);
-    return failedExecution(executionId, error);
+    return failedExecution(executionId, error, sendingPartnerISAID, receivingPartnerISAID);
   }
 };
 

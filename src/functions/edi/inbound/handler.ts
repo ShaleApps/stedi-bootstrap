@@ -49,6 +49,8 @@ const buckets = bucketsClient();
 
 export const handler = async (event: any): Promise<Record<string, any>> => {
   const executionId = generateExecutionId(event);
+  let sendingPartnerISAID: string | null = null;
+  let receivingPartnerISAID: string | null = null;
 
   try {
     await recordNewExecution(executionId, event);
@@ -92,6 +94,9 @@ export const handler = async (event: any): Promise<Record<string, any>> => {
         for (const interchange of metadata.interchanges) {
           const { senderId, receiverId, delimiters, interchangeSegments } =
             extractInterchangeData(interchange);
+
+          sendingPartnerISAID = senderId;
+          receivingPartnerISAID = receiverId;
 
           // resolve the partnerIds for the sending and receiving partners
           const sendingPartnerId = await resolvePartnerIdFromISAId(senderId);
@@ -241,7 +246,9 @@ export const handler = async (event: any): Promise<Record<string, any>> => {
       const message = `encountered ${errorCountMessage} while attempting to process ${keyCountMessage}`;
       return failedExecution(
         executionId,
-        new ErrorWithContext(message, results)
+        new ErrorWithContext(message, results),
+        sendingPartnerISAID,
+        receivingPartnerISAID,
       );
     }
 
@@ -253,7 +260,7 @@ export const handler = async (event: any): Promise<Record<string, any>> => {
 
     // Note, if an infinite Function execution loop is detected by `executionsBucketClient()`
     // the failed execution will not be uploaded to the executions bucket
-    return failedExecution(executionId, error);
+    return failedExecution(executionId, error, sendingPartnerISAID, receivingPartnerISAID);
   }
 };
 

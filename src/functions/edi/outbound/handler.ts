@@ -34,16 +34,21 @@ export const handler = async (event: any): Promise<Record<string, any>> => {
   const executionId = generateExecutionId(event);
   console.log("starting", JSON.stringify({ input: event, executionId }));
 
+  let sendingPartnerISAID: string | null = null;
+  let receivingPartnerISAID: string | null = null;
+
   try {
     await recordNewExecution(executionId, event);
     const outboundEvent = OutboundEventSchema.parse(event);
 
     // load "my" Trading Partner profile
     const { sendingPartnerId } = outboundEvent.metadata;
+    sendingPartnerISAID = sendingPartnerId;
     const senderProfile = await loadPartnerProfile(sendingPartnerId);
 
     // load the receiver's Trading Partner profile
     const { receivingPartnerId } = outboundEvent.metadata;
+    receivingPartnerISAID = receivingPartnerId;
     const receiverProfile = await loadPartnerProfile(receivingPartnerId);
 
     // load the outbound x12 configuration for the sender
@@ -167,6 +172,8 @@ export const handler = async (event: any): Promise<Record<string, any>> => {
           `some deliveries were not successful: ${rejectedCount} failed, ${deliveryResultsByStatus.fulfilled.length} succeeded`,
           deliveryResultsByStatus,
         ),
+        sendingPartnerISAID,
+        receivingPartnerISAID,
       );
     }
 
@@ -178,7 +185,7 @@ export const handler = async (event: any): Promise<Record<string, any>> => {
     };
   } catch (e) {
     const errorWithContext = ErrorWithContext.fromUnknown(e);
-    return failedExecution(executionId, errorWithContext);
+    return failedExecution(executionId, errorWithContext, sendingPartnerISAID, receivingPartnerISAID);
   }
 };
 
