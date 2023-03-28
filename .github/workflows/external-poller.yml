@@ -15,12 +15,12 @@ jobs:
         with:
           node-version: "18.7"
       - run: npm ci
-      - run: npm run execute ftp-external-poller FMXCHEPT # Set to FMXCHEPT for testing
+      - run: npm run execute ftp-external-poller FMXCHEP
         env:
-          STEDI_API_KEY: ${{secrets.STEDI_API_KEY}}
-          DESTINATION_WEBHOOK_URL: ${{secrets.DESTINATION_WEBHOOK_URL}}
-          EXECUTIONS_BUCKET_NAME: ${{secrets.EXECUTIONS_BUCKET_NAME }}
-          SFTP_BUCKET_NAME: ${{secrets.SFTP_BUCKET_NAME }}
+          STEDI_API_KEY: ${{secrets.STEDI_API_KEY}} # this is the API key for the Stedi user
+          DESTINATION_WEBHOOK_URL: ${{secrets.DESTINATION_WEBHOOK_URL}} # something that doesn't need to be changed it seems
+          EXECUTIONS_BUCKET_NAME: ${{secrets.EXECUTIONS_BUCKET_NAME }} # this is the bucket where the executions are stored
+          SFTP_BUCKET_NAME: ${{secrets.SFTP_BUCKET_NAME }} # this is the bucket where the SFTP files are stored
       # notify via slack if any failures are encountered
       - if: failure()
         name: "Send GitHub Action trigger failed notification to Slack"
@@ -47,5 +47,5 @@ jobs:
               ]
             }
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # this is the webhook URL for the Slack channel
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
