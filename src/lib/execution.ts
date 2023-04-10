@@ -142,12 +142,14 @@ export const failedExecution = async (
     .join("/")
     .replace("/", "%2F");
 
-  const bucketURL =
-    addTrailingSlash(`https://www.stedi.com/app/buckets/${bucket}?account=${account}&prefix=${prefix}`);
-  const link = `< ${bucketURL}|STEDI>`.replace(" ", "");
+  const bucketURL = addTrailingSlash(
+    `https://www.stedi.com/app/buckets/${bucket}?account=${account}&prefix=${prefix}`
+  );
+  const link = `< ${bucketURL}|details>`.replace(" ", "");
 
   await notifySlack(sendingPartnerID, receivingPartnerID, [
-    `Stedi function: *${functionName()}* failed [${link}].`,
+    "An error was logged at Stedi.",
+    `Function *${functionName()}* failed [${link}].`,
   ]);
 
   const statusCode =
