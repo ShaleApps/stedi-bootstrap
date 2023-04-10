@@ -2,8 +2,8 @@ name: Scheduled External SFTP Poller
 
 on:
   schedule:
-    # run every 4 minutes (starting from 4 after each hour)
-    - cron: "4/4 * * * *"
+    # run every 8 minutes (starting from 4 after each hour)
+    - cron: "3/4 * * * *"
 
 jobs:
   run_sftp_poller:
