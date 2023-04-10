@@ -134,20 +134,33 @@ export const failedExecution = async (
 ): Promise<FailureResponse> => {
   const rawError = serializeError(errorWithContext);
   const failureRecord = await markExecutionAsFailed(executionId, rawError);
-  const bucket = failureRecord?.bucketName
-  const account = '373b8c54-398b-4eb8-ab57-0bc70d75d46b';
-  const prefix = failureRecord.key.split('/').slice(0, -1).join('/').replace('/', '%2F');
-  const bucketURL = `https://www.stedi.com/app/buckets/${bucket}?account=${account}&prefix=${prefix}`;
-  const link = `< ${bucketURL}|STEDI>`.replace(' ', '');
+  const bucket = failureRecord?.bucketName;
+  const account = "373b8c54-398b-4eb8-ab57-0bc70d75d46b";
+  const prefix = failureRecord.key
+    .split("/")
+    .slice(0, -1)
+    .join("/")
+    .replace("/", "%2F");
+
+  const bucketURL =
+    removeTrailingSlash(`https://www.stedi.com/app/buckets/${bucket}?account=${account}&prefix=${prefix}`);
+  const link = `< ${bucketURL}|STEDI>`.replace(" ", "");
 
   await notifySlack(sendingPartnerID, receivingPartnerID, [
-    `Stedi function: '${functionName()}' failed [${link}].`
+    `Stedi function: *${functionName()}* failed [${link}].`,
   ]);
 
   const statusCode =
     (errorWithContext as any)?.["$metadata"]?.httpStatusCode || 500;
   const message = "execution failed";
   return { statusCode, message, failureRecord, error: rawError };
+};
+
+const removeTrailingSlash = (s: string) => {
+  if (s.endsWith("/")) {
+    return s.slice(0, -1);
+  }
+  return this;
 };
 
 const markExecutionAsFailed = async (
