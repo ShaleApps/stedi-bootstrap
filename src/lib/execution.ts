@@ -93,25 +93,29 @@ export class PostToSlack {
 }
 
 export const CHEP_PROD = "FMXCHEP";
-export const CHEP_TEST = "CHEP_TEST";
+export const CHEP_TEST = "FMXCHEPT";
 
-const notifySlack = async (senderISAID: string | null, receiverISAID: string | null, message: string[]): Promise<void> => {
+const notifySlack = async (
+  senderISAID: string | null,
+  receiverISAID: string | null,
+  message: string[]
+): Promise<void> => {
   try {
     let customer = CHEP_PROD;
-    let slackEndPoint = slackEndPointProd
+    let slackEndPoint = slackEndPointProd;
     if (senderISAID === CHEP_TEST || receiverISAID === CHEP_TEST) {
-      customer = CHEP_TEST
-      slackEndPoint = slackEndPointTest
+      customer = CHEP_TEST;
+      slackEndPoint = slackEndPointTest;
     }
 
-    const body = new PostToSlack(message.filter((s) => s == "").join("\n "), customer);
-    const response = await fetch(slackEndPoint, {
+    const postToSlack = new PostToSlack(
+      message.filter((s) => s == "").join("\n "),
+      customer
+    );
+
+    await fetch(slackEndPoint, {
       method: "post",
-      body: {
-        type: body.Type,
-        message: body.Message,
-        customer: body.Customer,
-      },
+      body: JSON.stringify(postToSlack),
       headers: {
         "Content-Type": "application/json",
         Authorization: "Key " + stediApiKey,
@@ -129,21 +133,16 @@ export const failedExecution = async (
   receivingPartnerID: string | null = null
 ): Promise<FailureResponse> => {
   const rawError = serializeError(errorWithContext);
-  const payload = {
-    ...rawError,
-  };
-  const payloadString = JSON.stringify(payload);
-
   const failureRecord = await markExecutionAsFailed(executionId, rawError);
+  await notifySlack(sendingPartnerID, receivingPartnerID, [
+    `Stedi function '${functionName()}' execution '${executionId}' failed.`,
+    `Failure Bucket '${failureRecord?.bucketName}' and key '${failureRecord?.key}'.`,
+    `Error: ${JSON.stringify(rawError)}`,
+  ]);
+
   const statusCode =
     (errorWithContext as any)?.["$metadata"]?.httpStatusCode || 500;
   const message = "execution failed";
-  await notifySlack(sendingPartnerID, receivingPartnerID, [
-    `Stedi function ${functionName()} failed.`,
-    failureRecord?.key ?? "",
-    `Execution ID: ${executionId}`,
-    `Error: ${payloadString}`,
-  ]);
   return { statusCode, message, failureRecord, error: rawError };
 };
 
