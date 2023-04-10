@@ -141,8 +141,7 @@ export const failedExecution = async (
   const link = `< ${bucketURL}|STEDI>`.replace(' ', '');
 
   await notifySlack(sendingPartnerID, receivingPartnerID, [
-    `Stedi function: '${functionName()}' failed.`,
-    `More information: ${link}.`,
+    `Stedi function: '${functionName()}' failed [${link}].`
   ]);
 
   const statusCode =
