@@ -79,7 +79,7 @@ export const markExecutionAsSuccessful = async (executionId: string) => {
 
 export class PostToSlack {
   constructor(
-    message: string,
+    message: string[],
     customer: string,
     type: "Success" | "Failure" | "Info" | "Warning" = "Failure"
   ) {
@@ -89,7 +89,7 @@ export class PostToSlack {
   }
   public Type: "Success" | "Failure" | "Info" | "Warning";
   public Customer: string;
-  public Message: string;
+  public Message: string[];
 }
 
 export const CHEP_PROD = "FMXCHEP";
@@ -109,7 +109,7 @@ const notifySlack = async (
     }
 
     const postToSlack = new PostToSlack(
-      message.filter((s) => s == "").join("\n "),
+      message.filter((s) => s !== ""),
       customer
     );
 
@@ -134,10 +134,15 @@ export const failedExecution = async (
 ): Promise<FailureResponse> => {
   const rawError = serializeError(errorWithContext);
   const failureRecord = await markExecutionAsFailed(executionId, rawError);
+  const bucket = failureRecord?.bucketName
+  const account = '373b8c54-398b-4eb8-ab57-0bc70d75d46b';
+  const prefix = failureRecord.key.split('/').slice(0, -1).join('/').replace('/', '%2F');
+  const bucketURL = `https://www.stedi.com/app/buckets/${bucket}?account=${account}&prefix=${prefix}`;
+  const link = `< ${bucketURL}|STEDI>`.replace(' ', '');
+
   await notifySlack(sendingPartnerID, receivingPartnerID, [
-    `Stedi function '${functionName()}' execution '${executionId}' failed.`,
-    `Failure Bucket '${failureRecord?.bucketName}' and key '${failureRecord?.key}'.`,
-    `Error: ${JSON.stringify(rawError)}`,
+    `Stedi function: '${functionName()}' failed.`,
+    `More information: ${link}.`,
   ]);
 
   const statusCode =
