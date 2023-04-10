@@ -143,7 +143,7 @@ export const failedExecution = async (
     .replace("/", "%2F");
 
   const bucketURL =
-    removeTrailingSlash(`https://www.stedi.com/app/buckets/${bucket}?account=${account}&prefix=${prefix}`);
+    addTrailingSlash(`https://www.stedi.com/app/buckets/${bucket}?account=${account}&prefix=${prefix}`);
   const link = `< ${bucketURL}|STEDI>`.replace(" ", "");
 
   await notifySlack(sendingPartnerID, receivingPartnerID, [
@@ -156,11 +156,11 @@ export const failedExecution = async (
   return { statusCode, message, failureRecord, error: rawError };
 };
 
-const removeTrailingSlash = (s: string) => {
+const addTrailingSlash = (s: string) => {
   if (s.endsWith("/")) {
-    return s.slice(0, -1);
+    return s;
   }
-  return this;
+  return s + "/";
 };
 
 const markExecutionAsFailed = async (
