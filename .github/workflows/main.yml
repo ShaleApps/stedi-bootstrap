@@ -1,0 +1,30 @@
+name: Scheduled External SFTP Poller
+
+on:
+  schedule:
+    # run every 7 minutes (starting from 3 after each hour)
+    - cron: "3/7 * * * *"
+
+jobs:
+  run_sftp_poller:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18.7"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run SFTP Poller
+        uses: ./.github/workflows/action.yml
+        with:
+          customer_isa_id: FMXCHEPT
+
+      - name: Run SFTP Poller
+        if: always()
+        uses: ./.github/workflows/action.yml
+        with:
+          customer_isa_id: FMXCHEPX

@@ -2,8 +2,8 @@ name: Scheduled External SFTP Poller
 
 on:
   schedule:
-    # run every 8 minutes (starting from 4 after each hour)
-    - cron: "3/4 * * * *"
+    # run every 7 minutes (starting from 3 after each hour)
+    - cron: "3/7 * * * *"
 
 jobs:
   run_sftp_poller:
@@ -14,16 +14,20 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "18.7"
-      - run: npm ci
-      - run: npm run execute ftp-external-poller FMXCHEP
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run SFTP Poller
+        run: npm run execute ftp-external-poller FMXCHEP
         env:
           STEDI_API_KEY: ${{secrets.STEDI_API_KEY}} # this is the API key for the Stedi user
           DESTINATION_WEBHOOK_URL: ${{secrets.DESTINATION_WEBHOOK_URL}} # something that doesn't need to be changed it seems
           EXECUTIONS_BUCKET_NAME: ${{secrets.EXECUTIONS_BUCKET_NAME }} # this is the bucket where the executions are stored
           SFTP_BUCKET_NAME: ${{secrets.SFTP_BUCKET_NAME }} # this is the bucket where the SFTP files are stored
-      # notify via slack if any failures are encountered
-      - if: failure()
-        name: "Send GitHub Action trigger failed notification to Slack"
+
+      - name: Send GitHub Action trigger failed notification to Slack
+        if: failure()
         id: slack
         uses: slackapi/slack-github-action@v1.23.0
         with:
