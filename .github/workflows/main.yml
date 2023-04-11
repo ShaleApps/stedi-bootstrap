@@ -19,12 +19,12 @@ jobs:
         run: npm ci
 
       - name: Run SFTP Poller
-        uses: ./.github/workflows/action.yml
+        uses: ./.github/workflows
         with:
           customer_isa_id: FMXCHEPT
 
       - name: Run SFTP Poller
         if: always()
-        uses: ./.github/workflows/action.yml
+        uses: ./.github/workflows
         with:
           customer_isa_id: FMXCHEPX
