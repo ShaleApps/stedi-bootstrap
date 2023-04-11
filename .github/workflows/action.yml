@@ -6,6 +6,26 @@ inputs:
     description: The ISA ID of the customer, which is set up as the key to the external SFTP poller configuration
     required: true
 
+  stedi_api_key:
+    description: The API key for the Stedi user
+    required: true
+
+  destination_webhook_url:
+    description: The webhook URL for the destination
+    required: true
+
+  executions_bucket_name:
+    description: The name of the bucket where the executions are stored
+    required: true
+
+  sftp_bucket_name:
+    description: The name of the bucket where the SFTP files are stored
+    required: true
+
+  slack_webhook_url:
+    description: The webhook URL for the Slack channel
+    required: true
+
 runs:
   using: composite
   steps:
@@ -13,10 +33,10 @@ runs:
       shell: bash
       run: npm run execute ftp-external-poller ${{ inputs.customer_isa_id }}
       env:
-        STEDI_API_KEY: ${{secrets.STEDI_API_KEY}} # this is the API key for the Stedi user
-        DESTINATION_WEBHOOK_URL: ${{secrets.DESTINATION_WEBHOOK_URL}} # something that doesn't need to be changed it seems
-        EXECUTIONS_BUCKET_NAME: ${{secrets.EXECUTIONS_BUCKET_NAME }} # this is the bucket where the executions are stored
-        SFTP_BUCKET_NAME: ${{secrets.SFTP_BUCKET_NAME }} # this is the bucket where the SFTP files are stored
+        STEDI_API_KEY: ${{ inputs.stedi_api_key }}
+        DESTINATION_WEBHOOK_URL: ${{ inputs.destination_webhook_url }}
+        EXECUTIONS_BUCKET_NAME: ${{ inputs.executions_bucket_name }}
+        SFTP_BUCKET_NAME: ${{ inputs.sftp_bucket_name }}
 
     - if: failure()
       name: Notify Slack Of Failure
@@ -43,5 +63,5 @@ runs:
             ]
           }
       env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # this is the webhook URL for the Slack channel
+        SLACK_WEBHOOK_URL: ${{ inputs.slack_webhook_url }}
         SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
