@@ -1,4 +1,4 @@
-name: Scheduled External SFTP Poller
+name: Scheduled SFTP Polling
 
 on:
   schedule:
