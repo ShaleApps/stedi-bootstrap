@@ -28,13 +28,13 @@ jobs:
           sftp_bucket_name: ${{secrets.SFTP_BUCKET_NAME }}
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-      #- name: Run SFTP Poller For CHEP - Other SCAC Regions
-      #  if: always()
-      #  uses: ./.github/workflows
-      #  with:
-      #    customer_isa_id: FMXCHEPOTHER
-      #    stedi_api_key: ${{secrets.STEDI_API_KEY}}
-      #    destination_webhook_url: ${{secrets.DESTINATION_WEBHOOK_URL}}
-      #    executions_bucket_name: ${{secrets.EXECUTIONS_BUCKET_NAME }}
-      #    sftp_bucket_name: ${{secrets.SFTP_BUCKET_NAME }}
-      #    slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Run SFTP Poller For CHEP - Other Regions
+        if: always()
+        uses: ./.github/workflows
+        with:
+          customer_isa_id: FMXCHEP_OTHER
+          stedi_api_key: ${{secrets.STEDI_API_KEY}}
+          destination_webhook_url: ${{secrets.DESTINATION_WEBHOOK_URL}}
+          executions_bucket_name: ${{secrets.EXECUTIONS_BUCKET_NAME }}
+          sftp_bucket_name: ${{secrets.SFTP_BUCKET_NAME }}
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
