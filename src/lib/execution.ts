@@ -147,13 +147,15 @@ export const failedExecution = async (
   );
   const link = `< ${bucketURL}|details>`.replace(" ", "");
 
-  await notifySlack(sendingPartnerID, receivingPartnerID, [
-    "An error was logged at Stedi.",
-    `Function *${functionName()}* failed [${link}].`,
-  ]);
+  const httpStatusCode = (errorWithContext as any)?.["$metadata"]?.httpStatusCode;
+  if (httpStatusCode % 100 !== 5) {
+    await notifySlack(sendingPartnerID, receivingPartnerID, [
+      "An error was logged at Stedi.",
+      `Function *${functionName()}* failed [${link}].`,
+    ]);
+  }
 
-  const statusCode =
-    (errorWithContext as any)?.["$metadata"]?.httpStatusCode || 500;
+  const statusCode = httpStatusCode || 500;
   const message = "execution failed";
   return { statusCode, message, failureRecord, error: rawError };
 };

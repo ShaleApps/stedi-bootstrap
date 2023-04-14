@@ -34,8 +34,8 @@ export const handler = async (event: any): Promise<Record<string, any>> => {
   const executionId = generateExecutionId(event);
   console.log("starting", JSON.stringify({ input: event, executionId }));
 
-  let sendingPartnerISAID: string | null = null;
-  let receivingPartnerISAID: string | null = null;
+  let sendingPartnerISAID: string | null | undefined = null;
+  let receivingPartnerISAID: string | null | undefined = null;
 
   try {
     await recordNewExecution(executionId, event);
@@ -43,13 +43,13 @@ export const handler = async (event: any): Promise<Record<string, any>> => {
 
     // load "my" Trading Partner profile
     const { sendingPartnerId } = outboundEvent.metadata;
-    sendingPartnerISAID = sendingPartnerId;
     const senderProfile = await loadPartnerProfile(sendingPartnerId);
+    sendingPartnerISAID = senderProfile?.partnerInterchangeId;
 
     // load the receiver's Trading Partner profile
     const { receivingPartnerId } = outboundEvent.metadata;
-    receivingPartnerISAID = receivingPartnerId;
     const receiverProfile = await loadPartnerProfile(receivingPartnerId);
+    receivingPartnerISAID = receiverProfile?.partnerInterchangeId;
 
     // load the outbound x12 configuration for the sender
     const partnership = await loadPartnership(
