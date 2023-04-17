@@ -38,3 +38,25 @@ jobs:
           executions_bucket_name: ${{secrets.EXECUTIONS_BUCKET_NAME }}
           sftp_bucket_name: ${{secrets.SFTP_BUCKET_NAME }}
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+# We run the SFTP poller twice to ensure that we don't miss any files by polling time stamp race conditions
+      - name: Run SFTP Poller For CHEP - LHLN Region - Second Run
+        uses: ./.github/workflows
+        with:
+          customer_isa_id: FMXCHEP_TWO
+          stedi_api_key: ${{secrets.STEDI_API_KEY}}
+          destination_webhook_url: ${{secrets.DESTINATION_WEBHOOK_URL}}
+          executions_bucket_name: ${{secrets.EXECUTIONS_BUCKET_NAME }}
+          sftp_bucket_name: ${{secrets.SFTP_BUCKET_NAME }}
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Run SFTP Poller For CHEP - Other Regions - Second Run
+        if: always()
+        uses: ./.github/workflows
+        with:
+          customer_isa_id: FMXCHEP_OTHER_TWO
+          stedi_api_key: ${{secrets.STEDI_API_KEY}}
+          destination_webhook_url: ${{secrets.DESTINATION_WEBHOOK_URL}}
+          executions_bucket_name: ${{secrets.EXECUTIONS_BUCKET_NAME }}
+          sftp_bucket_name: ${{secrets.SFTP_BUCKET_NAME }}
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
